@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2016
+# Copyright (c) 2016, 2021
 
 # Author(s):
 
 #   Trygve Aspenes
+#   Adam Dybbroe
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,8 +21,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Run the ana attitude correction script for AVHRR
-Relay on several other steps before this can be DONE
+"""Run the ana attitude correction script for AVHRR.
+
+Rely on several other steps before this can be done.
 """
 
 import os
@@ -34,7 +36,6 @@ LOG = logging.getLogger(__name__)
 
 
 def do_ana_correction(process_config, msg, timestamp):
-
     """The software ANA is 3party. User will have to get it themself.
     Further the ana binaries and scripts must be in the PATH,
     preferable in the primary AAPP bin directory
@@ -59,11 +60,11 @@ def do_ana_correction(process_config, msg, timestamp):
 
     return_status = True
 
-    # This function relays on beeing in a working directory
+    # This function relies on beeing in a working directory
     current_dir = os.getcwd()  # Store the dir to change back to after function complete
     os.chdir(process_config['aapp_processes'][process_config.process_name]['working_dir'])
 
-    # Must check of the ana dir exists
+    # Must check if the ana dir exists
     ana_dir = os.path.join(os.getenv('DIR_NAVIGATION'), 'ana')
     if not os.path.exists(ana_dir):
         try:
@@ -80,7 +81,8 @@ def do_ana_correction(process_config, msg, timestamp):
 
     if return_status:
         # Find all matching landmarks
-        cmd = "ana_lmk_loc -D {}".format(process_config['aapp_static_configuration']['decommutation_files']['avhrr_file'])
+        cmd = "ana_lmk_loc -D {}".format(process_config['aapp_static_configuration']
+                                         ['decommutation_files']['avhrr_file'])
         try:
             status = False
             status, returncode, std, err = run_shell_command(cmd,
@@ -172,7 +174,8 @@ def do_ana_correction(process_config, msg, timestamp):
         # LOG.debug("sha256 of aapp input avhrr_file: {}".format(hashlib.sha256(open(
         # process_config['aapp_static_configuration']['decommutation_files']['avhrr_file'], 'rb').read()).hexdigest()))
 
-        sha256_before_correction = hashlib.sha256(open(process_config['aapp_static_configuration']['decommutation_files']['avhrr_file'], 'rb').read()).hexdigest()
+        sha256_before_correction = hashlib.sha256(
+            open(process_config['aapp_static_configuration']['decommutation_files']['avhrr_file'], 'rb').read()).hexdigest()
 
     if return_status:
         # Recalculate the location in the avhhr data file with the new correction attitude coefisients.
@@ -185,7 +188,8 @@ def do_ana_correction(process_config, msg, timestamp):
             return_status = False
 
     if return_status:
-        sha256_after_correction = hashlib.sha256(open(process_config['aapp_static_configuration']['decommutation_files']['avhrr_file'], 'rb').read()).hexdigest()
+        sha256_after_correction = hashlib.sha256(
+            open(process_config['aapp_static_configuration']['decommutation_files']['avhrr_file'], 'rb').read()).hexdigest()
         LOG.debug("sha256 of aapp input avhrr_file BEFORE ana: {}".format(sha256_before_correction))
         LOG.debug("sha256 of aapp input avhrr_file AFTER  ana: {}".format(sha256_after_correction))
         if (sha256_before_correction == sha256_after_correction):
